@@ -1,0 +1,37 @@
+{
+  "subdomain": "attendee",
+  "customDomain": "docs.attendee.dev",
+  "guides": [
+    {
+      "name": "Guides",
+      "sidebar": [
+        {
+          "path": "docs/basics.md",
+          "type": "page"
+        },
+        {
+          "path": "docs/webhooks.md",
+          "type": "page"
+        },
+        {
+          "path": "docs/faq.md",
+          "type": "page"
+        }
+      ]
+    }
+  ],
+  "references": [
+    {
+      "name": "API Reference",
+      "path": "docs/openapi.yml"
+    }
+  ],
+  "siteConfig": {
+    "logo": {
+      "darkMode": "https://app.attendee.dev/static/images/logo_with_text.svg",
+      "lightMode": "https://app.attendee.dev/static/images/logo_with_text.svg"
+    },
+    "footer": ""
+  },
+  "publishOnMerge": true
+}
