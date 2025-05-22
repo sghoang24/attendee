@@ -3,10 +3,13 @@ import os
 from .base import *
 
 DEBUG = True
-ALLOWED_HOSTS = ["tendee-stripe-hooks.ngrok.io", "localhost", "192.168.1.26", "attendee.sghoang.me"]
+ALLOWED_HOSTS = [
+    "tendee-stripe-hooks.ngrok.io", "localhost",
+    "192.168.1.171", "attendee.bellamy.it.com",
+]
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://attendee.sghoang.me'
+    'https://attendee.bellamy.it.com',
 ]
 
 

@@ -1,6 +1,7 @@
 services:
   attendee-worker-local:
     build: ./
+    restart: always
     volumes:
      - .:/attendee
     networks:
@@ -13,6 +14,7 @@ services:
 
   attendee-app-local:
     build: ./
+    restart: always
     volumes:
      - .:/attendee
     networks:

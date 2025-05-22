@@ -12,6 +12,7 @@ from .models import (
     TranscriptionProviders,
 )
 from google import genai
+from moviepy import VideoFileClip
 
 # summarize_prompt = """
 # You are an AI meeting notetaker. Summarize the key points, decisions, and action items from this meeting recording. Organize the summary clearly with sections for:
@@ -24,21 +25,21 @@ from google import genai
 # """
 
 summarize_prompt = """
-You are an AI meeting notetaker. \
-Summarize the content of this meeting in a clear, \
-concise, and easy-to-understand way. \
-Focus on capturing the main points discussed, \
-important insights, and any notable outcomes, avoid unnecessary details. \
-The summary should help someone quickly grasp what the meeting was about.
-Generate answer in Markdown format.
+As an AI meeting notetaker, generate a clear, concise, \
+and easy-to-understand summary of the provided meeting content. \
+Capture the main points discussed, important insights, and any notable outcomes. \
+Avoid unnecessary details and ensure high reliability of information. \
+The summary should allow someone to quickly grasp the meeting's core content. \
+Emphasize key points using **bold** text. \
+Format the output in Markdown.
 """
 
-def video_summarizer(file_path: str) -> str:
-    """Video summarizer using Google GenAI."""
+def file_summarizer(file_path: str) -> str:
+    """File summarizer using Google GenAI."""
     client = genai.Client(api_key=os.environ.get("GOOGLE_API_KEY"))
     try:
         myfile = client.files.upload(file=file_path)
-        print(f"Video uploaded successfully: {myfile.name}, State: {myfile.state}")
+        print(f"File uploaded successfully: {myfile.name}, State: {myfile.state}")
     except Exception as e:
         print(f"Failed to upload file: {e}")
         return ""
@@ -52,12 +53,20 @@ def video_summarizer(file_path: str) -> str:
         if (time.time() - start_time) > 60 * 10:
             print("File upload timed out.")
             return ""
+
     print("Video status ACTIVE...")
     response = client.models.generate_content(
         model="gemini-2.0-flash",
         contents=[myfile, summarize_prompt]
     )
     return response.text
+
+
+def convert_mp4_to_mp3(mp4_path, mp3_path):
+    """Convert MP4 file to MP3 format."""
+    video = VideoFileClip(mp4_path)
+    audio = video.audio
+    audio.write_audiofile(mp3_path)
 
 
 def pcm_to_mp3(

@@ -33,7 +33,7 @@ from bots.models import (
     TranscriptionProviders,
     Utterance,
 )
-from bots.utils import meeting_type_from_url, video_summarizer
+from bots.utils import meeting_type_from_url, file_summarizer, convert_mp4_to_mp3
 
 from .audio_output_manager import AudioOutputManager
 from .automatic_leave_configuration import AutomaticLeaveConfiguration
@@ -269,24 +269,33 @@ class BotController:
             self.screen_and_audio_recorder.cleanup()
 
         if self.get_recording_file_location():
-            # logger.info("Telling file uploader to upload recording file...")
-            # file_uploader = FileUploader(
-            #     os.environ.get("AWS_RECORDING_STORAGE_BUCKET_NAME"),
-            #     self.get_recording_filename(),
-            # )
-            # file_uploader.upload_file(self.get_recording_file_location())
-            # file_uploader.wait_for_upload()
-            # logger.info("File uploader finished uploading file")
+            # Upload the recording file to S3
+            logger.info("Converting Video to Audio file...")
+            recording_filename = os.path.splitext(self.get_recording_filename())[0]
+            convert_mp4_to_mp3(
+                mp4_path=self.get_recording_file_location(),
+                mp3_path=os.path.join("/tmp", f"{recording_filename}.mp3"),
+            )
+            logger.info("Done converting...")
 
-            # Summarize video
-            logger.info("Summarizing video...")
-            summarize_content = video_summarizer(
+            # Upload the audio file to S3
+            logger.info("Telling file uploader to upload audio recording file...")
+            file_uploader = FileUploader(
+                os.environ.get("AWS_RECORDING_STORAGE_BUCKET_NAME"),
+                f"{recording_filename}.mp3",
+            )
+            file_uploader.upload_file(os.path.join("/tmp", f"{recording_filename}.mp3"))
+            file_uploader.wait_for_upload()
+            logger.info("File uploader finished uploading file")
+
+            # Summarize audio
+            logger.info("Summarizing audio...")
+            summarize_content = file_summarizer(
                 file_path=self.get_recording_file_location()
             )
             logger.info(f"Video summarization result: {summarize_content}")
 
             # Write summarized content to a .md file
-            recording_filename = os.path.splitext(self.get_recording_filename())[0]
             summary_file_path = os.path.join("/tmp", f"{recording_filename}.md")
             with open(summary_file_path, "w", encoding='utf-8') as summary_file:
                 summary_file.write(summarize_content)
